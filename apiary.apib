@@ -1,0 +1,489 @@
+FORMAT: 1A
+HOST: http://polls.apiblueprint.org/
+
+# OP'BookMe
+
+This API exposes medical informations to allow the Generalist Practitioner Portal to offer a booking interface.
+
+## General information
+
+A context object will be systematically sent to server into the http header (“X-context” key).
+It contains following information:
+- ID of the connected user
+- Role of user (patient, practitioner…) (to be defined)
+- ID of the patient concerned by the appointment
+- The interface language
+
+Sample:
+
+X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"} 
+
+
+Note: 
+
+ID’s are String to allow composite id’s or alphanumeric id’s.
+
+
+## Appointment types available [/appointmentTypes]
+
+Available means that this practitioner has open calendars configured to be accessible by web for user type (patient/practitioner).
+
+### Find all appointment types [GET /appointmentTypes]
+
+Return the list of all available appointment types.
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
++ Response 200 (application/json)
+    + Attributes (array[AppointmentType])
+
+
+### Find a specific appointment type [GET /appointmentTypes/{typeId}]
+Return a specific appointment type.
+
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
++ Parameters
+    + typeId: 15 (string) - ID of an appointment type
+    
++ Response 200 (application/json)
+    + Attributes (AppointmentType)
+    
+### Find a list of appointment type [GET /appointmentTypes/{?typeIds}]
+Return a specific appointment type.
+
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
++ Parameters
+    + typeIds: 15,16,17 (array[string]) - IDs of appointment types
+    
++ Response 200 (application/json)
+    + Attributes (array[AppointmentType])
+
+### Find appointment types by practitioner [GET /appointmentTypes{?practitionerId}]
+Gets the list of appointment types available for a practitioner.
+
+
+practitionerId can be "all".
+
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
+            
++ Parameters
+    + practitionerId: 128 (string) - ID of the Practitioner (single)
+    
+            
++ Response 200 (application/json)
+    + Attributes (array[AppointmentType])
+
+### Find appointment types by site [GET /appointmentTypes{?siteId}]
+Gets the list of appointment types available for a site. 
+
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
+            
++ Parameters
+    + siteId: 12 (string) - ID of the Site
+   
+            
++ Response 200 (application/json)
+    + Attributes (array[AppointmentType])
+
+## Sites available [/sites]
+
+### Find all sites [GET /sites]
+Gets the list of sites which have open calendars configured to be accessible by web for user type (patient/practitioner).
+
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
+            
++ Response 200 (application/json)
+    + Attributes (array[Site])
+
+## Practitioners available [/practitioners]
+Available means that this practitioner has open calendars configured for those appointment types and sites, we assume that all appointment types have been filtered to get only available for booking.
+
+### find all practitioner [GET]
+Gets the list of practitioners available.
+
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
+            
++ Response 200 (application/json)
+    + Attributes (array[Practitioner])
+
+### Find practitioner by site / appointment type [GET /practitioners{?appointmentTypeIds,siteIds}]
+Gets the list of practitioners available.
+
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
+            
++ Parameters
+    + appointmentTypeIds: 128,129 (array[string], optional) - IDs of appointment types.
+    + siteIds: 10,11 (array[string], optional) - IDs of sites.
+            
++ Response 200 (application/json)
+    + Attributes (array[Practitioner])
+
+## Appointments proposals [/proposals]
+Gets proposals for the contextual patient ans given parameters.
+
+### Find appointment proposals [GET /proposals{?startingDate,appointmentType,siteId,limit,practitionnersIds}]
++ Request (application/json)
+
+    + Headers
+    
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
+    
+    + Attributes (ProposalPreference)
+            
++ Parameters
+    + startingDate (string YYYYMMDD) - Starting date for proposals
+    + appointmentType (string) - The apointment type ID
+    + siteId (string) - A site ID to filter proposals on one site "all" means no filter
+    + limit (number, optional) - The number of proposals to retrieve (limited by configuration)
+        + Default: 20
+    + practitionnersIds (array[string]) - List of practitionners ID's to filter proposals (optional)
+    
+            
++ Response 200 (application/json)
+    + Attributes (array[Proposal])
+
+## Manage appointments [/appointments]
+
+### Find an appointment [GET /appointments/{appointmentId}]
+Gets complete information about an appointment based on its ID. 
+
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
+            
++ Parameters
+    + appointmentId: 12548 (string) - ID of the appointment (single)
+    
+            
++ Response 200 (application/json)
+    + Attribute (Appointment)
+    
+
+### Create an appointment [POST /appointments]
+Creates an appointment
+
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
+           
+    + Attributes (Appointment)
+            
++ Response 200 (application/json)
+    + Attributes 
+        + appointmentId: 1258 (string) - the id of the newly created appointment
+        
++ Response 403 (application/json)
+    + Attributes
+        + status: 403 
+        + error: FORBIDEN
+        + message: The appointment can't be book at this time: no free slot at this time
+
+### Cancel an appointment [DELETE /appointments/{appointmentId}]
+Asks to cancel an appointment. The result code indicates if:
+- The appointment has been canceled ("OK")
+- The appointment can’t be canceled due to an error ("ERROR")
+- The appointment can’t be canceled due to configuration (label contains reason) ("FORBIDEN")
+
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
+            
++ Parameters
+    + appointmentId: 12458 (string) - ID of the appointment (single)
+    
+            
++ Response 200 (application/json)
+
++ Response 500 (application/json)
+    + Attributes
+        + status: 500 
+        + error: ERROR
+        + message: can't cancel the appointment, an internal error occurred
+        
++ Response 403 (application/json)
+    + Attributes
+        + status: 403 
+        + error: FORBIDEN
+        + message: can't cancel the appointment, not allow to cancel an appointment in the past
+
+### Find all appointments for a patient [GET /patients/{patientId}/appointments]
+Gets complete information about all appointments for the contextual patient between two dates
+Corresponds to "My appointments" as a patient.
+
++ Parameter
+    + patientId: 123 (string) - ID of the patient
+
++ Response 200 (application/json)
+    + Attributes (array[Appointment])
+
+
+### Find all appointments for a patient between dates [GET /patients/{patientId}/appointments{?startingDate,endingDate}]
+Get complete information about all appointments for context patient between two dates
+
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
+ 
++ Parameters
+    + startingDate (string YYYYMMDD) - Starting date for appointments (inclusive)
+    + endingDate (string YYYYMMDD) - Endind date for appointments (inclusive)
+         
++ Response 200 (application/json)
+    + Attributes (array[Appointment])
+
+### Find appointments for practitioner between 2 dates [GET /practitioner/{practitionerId}/appointments{?startingDate,endingDate}]
+Gets complete information about all appointments registered for the contextual practitionner between two dates.
+Corresponds to "My appointments" as a practitioner.
+
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
+ 
++ Parameters
+    + startingDate (string YYYYMMDD) - Starting date for appointments (inclusive)
+    + endingDate (string YYYYMMDD) - Endind date for appointments (inclusive)
+         
++ Response 200 (application/json)
+    + Attributes (array[Appointment])
+
+## Manage appointments list booked by a practitioner for his patients [/appointments/booker/{practitionerId}/{startingDate}/{endingDate}]
+Gets complete information about all appointments registered by the contextual practitionner between two dates
+Corresponds to "Appointments booked by me" as a practitioner.
+
+###getFutureAppointmentsByPractitionner [GET]
+
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
+ 
++ Parameters
+    + startingDate (string YYYYMMDD) - Starting date for appointments (inclusive)
+    + endingDate (string YYYYMMDD) - Endind date for appointments (inclusive)
+         
++ Response 200 (application/json)
+    + Attributes (Appointment)
+
+
+## Check if the patient is allowed to book [/security/allowed/{appointmentType}]
+Checks if the practitian can book an appointment for the contextual patient 
+and this appointment type following hospital business rules.
+###isBookingAllowed [GET]
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
+            
++ Parameters
+    + appointmentType (string) - The appointment type ID
+
+            
++ Response 200 (application/json)
+
+        {
+         "authorization": true/false
+        }
+
+## Context informations [/security/contextInfo]
+Gets detailed information about practitionner and patient selected in the context
+
+###getContextInfo [GET]
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
+            
++ Response 200 (application/json)
+
+        {"practitioner": 
+            {"id": "practitioner ID",
+             "title": "practitioner title",
+             "firstName": "practitioner firstname",
+             "lastName": "practitioner llastname",
+             "email": "pratitioner email"
+            },
+         "patient":
+            {"id": "patient ID",
+             "title": "patient title",
+             "firstName": "patient firstname",
+             "lastName": "patient llastname",
+             "sex": "patient sex",
+             "birthDate": "patient birth date",
+             "email": "patient email",
+             "mobile": "patient mobile number",
+             "address": 
+                {"street": "street",
+                 "street2": "street more info",
+                 "zip": "postal code",
+                 "city": "City",
+                 "country": "Country",
+                 "phone": "fixed phone number"
+                }
+            }
+        }
+
+## Configuration [/security/config]
+Gets the list of all parameters and values used by the booking service
+
+###getConfig [GET]
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
+            
++ Response 200 (application/json)
+
+        {["key": "param key",
+         "value": "param value"]
+        }
+
+## Specific configuration [/security/config/{paramKey}]
+Gets the value of a specific parameter.
+
+###getConfigByKey [GET]
++ Request (application/json)
+
+    + Headers
+
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
+
++ Parameters
+    + paramKey (String) - The key of the paramater
+            
++ Response 200 (application/json)
+
+        {"key": "param key",
+         "value": "param value"
+        }
+        
+# Data Structures
+
+## AppointmentType
++ id: 15 (string) - appointment type id
++ label: Ortho consultation (string) - label of the appointment type 
++ description: Description of this appointment type (string, optional) - description of an appointment type 
++ directive: Come with radios (string, optional) - appointment type directive for patient
+
+## Site
++ id: 10 (string) - site id
++ label: Xperthis-Mons (string) - site label
++ address: 30, Boulevard Initialis 7000 Mons (string) - site address
+
+## Practitioner
++ id: P458 (string) - practitioner id
++ title: Dr (string) - practitioner title
++ firstname: Frank (string) - practitioner firstname
++ lastname: Verheyden (string) - practitioner lastname
+
+## ProposalPreference
++ dayPreferences (array[DayPreference]) - preferred time by day
+
+## DayPreference
++ dayOfWeek: 2 (enum[number]) - prefered day
+    + Members
+        + 1 - Monday
+        + 2 - Tuesday
+        + 3 - Wednesday
+        + 4 - Thursday
+        + 5 - Friday
+        + 6 - Saturday
+        + 0 - Sunday
++ startTime: 1400 (string) - prefered start time; format HHmm
++ endTime: 1700 (string) - prefered end time; format HHmm
+
+## Proposal
++ id: 154123 (string) - id of the proposal
++ date: 201606010900 (string) - proposal date, format YYYYMMDDHHmm
++ appointmentTypeId: 15 (string) - appointment type id
++ appointmentType (AppointmentType) - the appointment type
++ siteId: 10 (string) - the site id
++ site (Site) - the site
++ practitionerId: P458 (string) - the practitioner id
++ practitioner (Practitioner) - the practitioner
+
+## Appointment
++ id: 1258 (string, optional) - the appointment id, null on creation
++ date: 201606011500 (string) - the appointment date and time, format YYYYMMDDHHmm
++ appointmentTypeId: 15 (string) 
++ appointmentType (AppointmentType) - the appointment type
++ status (AppointmentStatus) - the current status for the appointment
++ comment: Great booking app ! (string, optional) - a comment on the appointment
++ siteId: 10 (string)
++ site (Site) - the appointment location
++ patientId: PA469 (string)
++ patient (Patient) - the patient
++ practitionerId: P458
++ practitioner (Practitioner) - the practitioner
+
+## AppointmentStatus
++ id: 5698 (string) - appointment status id
++ label: Planned (string) - status label
++ statusDate: 201605241453 (string) - status date, format YYYYMMDDHHmm
+
+## Patient
++ id: PA469 (string) - patient id
++ title: Mr (string, optional) - the patient title
++ firstname: Zema (string) - patient firstname
++ lastname: Alec (string) - patient lastname
++ gender: M (enum[string]) - patient gender
+    + Members
+        + M - Male
+        + F - Female 
+        + O - Other
+        + U - Unknow
++ birthdate: 01011900 (string) - patient birthdate
++ mail: someone@something.com (string) - patient mail
++ mobile: +32475757575 (string) - patient mobile phone number
++ address (Address) - patient address
+
+## Address
++ street: 30, Boulevard Initialis (string)
++ street2
++ zip: 7000 (string)
++ city: Mons (string)
++ country: Belgium (string)
++ phone: +3265959595 (string)
