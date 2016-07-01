@@ -438,26 +438,20 @@ Gets the value of a specific parameter.
 ## Proposal
 + id: 154123 (string) - id of the proposal
 + date: 201606010900 (string) - proposal date, format YYYYMMDDHHmm
-+ appointmentTypeId: 15 (string) - appointment type id
 + appointmentType (AppointmentType) - the appointment type
-+ siteId: 10 (string) - the site id
 + site (Site) - the site
-+ practitionerId: P458 (string) - the practitioner id
 + practitioner (Practitioner) - the practitioner
 
 ## Appointment
 + id: 1258 (string, optional) - the appointment id, null on creation
 + date: 201606011500 (string) - the appointment date and time, format YYYYMMDDHHmm
-+ appointmentTypeId: 15 (string) 
 + appointmentType (AppointmentType) - the appointment type
 + status (AppointmentStatus) - the current status for the appointment
 + comment: Great booking app ! (string, optional) - a comment on the appointment
-+ siteId: 10 (string)
 + site (Site) - the appointment location
-+ patientId: PA469 (string)
 + patient (Patient) - the patient
-+ practitionerId: P458
 + practitioner (Practitioner) - the practitioner
+
 
 ## AppointmentStatus
 + id: 5698 (string) - appointment status id
