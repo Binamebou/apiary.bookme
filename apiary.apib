@@ -306,6 +306,45 @@ Get complete information about all appointments for context patient between two 
 + Response 200 (application/json)
     + Attributes (array[Appointment])
 
+
+        [
+            {
+                "appointmentId":"1",
+                "appointmentType": {
+                    "id":"1",    
+                    "label":"Consultatie Gastro-enterologie",
+                    "description":"Cons. Gastro-entero",
+                    "directive":"Directive pour cons. gastro-entéro"   
+                },
+            "practitioner":
+              {"id":"2",
+               "firstname":"Jan",
+               "lastname":"Jansen",
+               "title":"Doctor"
+              },
+                "site":{"id":"2", "label":"ZNA Middelheim","address":"L'adresse du site"},
+                "startDate":"1419696342437",
+                "read":"false"
+            },
+            {
+                "appointmentId":"2",
+                "appointmentType": {
+                    "id":"2",
+                    "label":"Consultatie Psychiatrie",
+                    "description":"Cons. Psychiatrie",
+                    "directive":"Plus rien à faire" 
+                },
+            "practitioner":
+              {"id":"1",
+               "firstname":"Sigi",
+               "lastname":"Freud",
+               "title":"Doctor"
+              },
+                "site":{"id":"2", "label":"ZNA Middelheim","address":"L'adresse du site"},
+                "startDate":"1418793005500",
+                "read":"false"
+            }
+        ]
 ### Find appointments for practitioner between 2 dates [GET /practitioner/{practitionerId}/appointments{?startingDate,endingDate}]
 Gets complete information about all appointments registered for the contextual practitionner between two dates.
 Corresponds to "My appointments" as a practitioner.
