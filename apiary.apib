@@ -246,12 +246,50 @@ Gets complete information about all appointments for the contextual patient betw
 Corresponds to "My appointments" as a patient.
 
 + Parameter
-    + patientId: 123 (string) - ID of the patient
+    + patientId: 1 (string) - ID of the patient
 
 + Response 200 (application/json)
     + Attributes (array[Appointment])
 
-
+        [
+            {
+                "appointmentId":"1",
+                "appointmentType": {
+                    "id":"1",    
+                    "label":"Consultatie Gastro-enterologie",
+                    "description":"Cons. Gastro-entero",
+                    "directive":"Directive pour cons. gastro-entéro"   
+                },
+            "practitioner":
+              {"id":"2",
+               "firstname":"Jan",
+               "lastname":"Jansen",
+               "title":"Doctor"
+              },
+                "site":{"id":"2", "label":"ZNA Middelheim","address":"L'adresse du site"},
+                "startDate":"1419696342437",
+                "read":"false"
+            },
+            {
+                "appointmentId":"2",
+                "appointmentType": {
+                    "id":"2",
+                    "label":"Consultatie Psychiatrie",
+                    "description":"Cons. Psychiatrie",
+                    "directive":"Plus rien à faire" 
+                },
+            "practitioner":
+              {"id":"1",
+               "firstname":"Sigi",
+               "lastname":"Freud",
+               "title":"Doctor"
+              },
+                "site":{"id":"2", "label":"ZNA Middelheim","address":"L'adresse du site"},
+                "startDate":"1418793005500",
+                "read":"false"
+            }
+        ]
+        
 ### Find all appointments for a patient between dates [GET /patients/{patientId}/appointments{?startingDate,endingDate}]
 Get complete information about all appointments for context patient between two dates
 
@@ -259,7 +297,7 @@ Get complete information about all appointments for context patient between two 
 
     + Headers
 
-            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"456", language:"EN"}
+            X-context: {user:"123", roles:["PRACTITIONER","GENERALIST"], patient:"1", language:"EN"}
  
 + Parameters
     + startingDate (string YYYYMMDD) - Starting date for appointments (inclusive)
